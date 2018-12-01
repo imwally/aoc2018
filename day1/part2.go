@@ -22,7 +22,7 @@ func main() {
 	}
 	defer file.Close()
 
-	// May need to reread the list of frequences multiple times so
+	// May need to reread the list of frequencies multiple times so
 	// save to a slice for easy re-indexing
 	var changes []int
 	scanner := bufio.NewScanner(file)
