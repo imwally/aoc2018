@@ -13,11 +13,14 @@ func oppositePolarity(r1, r2 byte) bool {
 
 func removeOpposites(s string) string {
 	b := []byte(s)
-	for i := 0; i < len(b)-1; i++ {
+	i := 0
+	for i < len(b)-1 {
 		r1, r2 := b[i], b[i+1]
 		if oppositePolarity(r1, r2) {
 			b = append(b[:i], b[i+2:]...)
 			i = 0
+		} else {
+			i++
 		}
 	}
 
@@ -42,10 +45,6 @@ func main() {
 		s = scanner.Text()
 	}
 
-	// Something if off by one. I need to run this twice to remove
-	// the last remaining opposite which starts at index 0.
 	s = removeOpposites(s)
-	s = removeOpposites(s)
-
 	fmt.Println(len(s))
 }
