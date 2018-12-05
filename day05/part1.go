@@ -18,7 +18,9 @@ func removeOpposites(s string) string {
 		r1, r2 := b[i], b[i+1]
 		if oppositePolarity(r1, r2) {
 			b = append(b[:i], b[i+2:]...)
-			i = 0
+			if i != 0 {
+				i -= 1
+			}
 		} else {
 			i++
 		}
