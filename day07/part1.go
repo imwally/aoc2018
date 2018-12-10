@@ -42,50 +42,50 @@ func main() {
 	}
 	defer file.Close()
 
-	var dkeys []string
 	dependencies := make(map[string][]string)
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		s := strings.Split(scanner.Text(), " ")
-		if !in(dkeys, s[7]) {
-			dkeys = append(dkeys, s[7])
-		}
 		dependencies[s[7]] = append(dependencies[s[7]], s[1])
 
+		// Add any steps without dependencies
+		if _, ok := dependencies[s[1]]; !ok {
+			dependencies[s[1]] = []string{}
+		}
 	}
 
 	d := dependencies
 
-	// Add keys that have no depencies
-	for _, key := range dkeys {
-		for _, dep := range d[key] {
-			if !in(dkeys, dep) {
-				dkeys = append(dkeys, dep)
-			}
-		}
-	}
-
-	// Sort keys alphabetically
-	sort.Slice(dkeys, func(i, j int) bool {
-		return dkeys[i] < dkeys[j]
-	})
-
 	var steps []string
 	for len(d) > 0 {
-		for _, key := range dkeys {
-			for _, dep := range d[key] {
+		// Create a new slice to store newly available steps
+		// (also clears available slice from last iteration)
+		var avail []string
+		for step, deps := range d {
+			// No more dependencies, make step available
+			if len(deps) == 0 {
+				avail = append(avail, step)
+			}
+		}
+
+		// Sort available steps
+		sort.Strings(avail)
+		step := avail[0]
+
+		// Add new step
+		steps = append(steps, step)
+
+		// Remove step from dependencies
+		delete(d, step)
+
+		// Remove newly added step from dependencies of remaining steps
+		for step, deps := range d {
+			for _, dep := range deps {
 				if in(steps, dep) {
-					d[key] = remove(d[key], dep)
+					d[step] = remove(deps, dep)
 				}
 			}
-			if d[key] == nil {
-				steps = append(steps, key)
-				dkeys = remove(dkeys, key)
-				delete(d, key)
-				break
-			}
-
 		}
 	}
 
